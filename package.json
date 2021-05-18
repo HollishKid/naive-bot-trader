@@ -3,8 +3,11 @@
   "version": "0.0.1",
   "description": "A very naive bot trader.",
   "private": true,
-  "main": "main.js",
-  "scripts": {},
+  "main": "./src/main.js",
+  "scripts": {
+    "test": "standard",
+    "fix": "standard --fix"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/HollishKid/naive-bot-trader.git"
@@ -14,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/HollishKid/naive-bot-trader/issues"
   },
-  "homepage": "https://github.com/HollishKid/naive-bot-trader#readme"
+  "homepage": "https://github.com/HollishKid/naive-bot-trader#readme",
+  "devDependencies": {
+    "standard": "^16.0.3"
+  }
 }
