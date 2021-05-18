@@ -1,0 +1,18 @@
+{
+  "name": "naive-bot-trader",
+  "version": "0.0.1",
+  "description": "A very naive bot trader.",
+  "private": true,
+  "main": "main.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HollishKid/naive-bot-trader.git"
+  },
+  "author": "Hollish",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HollishKid/naive-bot-trader/issues"
+  },
+  "homepage": "https://github.com/HollishKid/naive-bot-trader#readme"
+}
