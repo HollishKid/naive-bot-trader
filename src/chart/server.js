@@ -5,7 +5,7 @@ const http = require('http')
 const path = require('path')
 
 class Server {
-  constructor() {
+  constructor () {
     this.server = null
     this.newCandles = []
 
@@ -14,7 +14,7 @@ class Server {
     this.setup()
   }
 
-  setup() {
+  setup () {
     this.server = http.createServer((request, response) => {
       switch (request.url) {
         case '/':
@@ -53,7 +53,7 @@ class Server {
     this.server.listen(3000)
   }
 
-  async newData(candle) {
+  async newData (candle) {
     this.newCandles.push(candle)
   }
 }

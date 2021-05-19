@@ -1,6 +1,5 @@
 'use strict'
 
-const path = require('path')
 const open = require('open')
 
 const Backtester = require('./backtester')

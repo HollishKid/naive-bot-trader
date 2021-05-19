@@ -1,7 +1,9 @@
 'use strict'
 
+/* global Chart fetch */
+
 class ChartClass {
-  constructor() {
+  constructor () {
     this.server = null
 
     this.volumeData = []
@@ -23,7 +25,7 @@ class ChartClass {
     this.setup()
   }
 
-  setup() {
+  setup () {
     setTimeout(() => { this.queryData() }, 2000)
 
     this.chart = new Chart(this.ctx, {
@@ -95,7 +97,7 @@ class ChartClass {
             pan: {
               enabled: true,
               modifierKey: 'ctrl',
-              mode: 'xy',
+              mode: 'xy'
             },
             zoom: {
               drag: {
@@ -126,7 +128,7 @@ class ChartClass {
     })
   }
 
-  async queryData() {
+  async queryData () {
     try {
       const data = await fetch('/data')
       const newData = await data.json()
@@ -142,7 +144,7 @@ class ChartClass {
     }
   }
 
-  async addData(data) {
+  async addData (data) {
     console.info('Starting data process...')
     this.status.innerHTML = 'Starting data process...'
     for (let i = 0; i < data.length; i++) {
@@ -176,14 +178,7 @@ class ChartClass {
         this.yMin = data[i].close
       }
 
-      /*this.volumeData.push({ x: data[i].timestamp, volume: data[i].volume })
-      this.openData.push({ x: data[i].timestamp, open: data[i].open })
-      this.highData.push({ x: data[i].timestamp, high: data[i].high })
-      this.lowData.push({ x: data[i].timestamp, low: data[i].low })
-      this.closeData.push({ x: data[i].timestamp, close: data[i].close })*/
-
       this.chart.data.datasets.forEach((dataset) => {
-        // dataset.data = data
         switch (dataset.label) {
           case 'Volume':
             dataset.data.push({ x: data[i].timestamp, volume: data[i].volume })
@@ -203,45 +198,21 @@ class ChartClass {
         }
       })
 
-
-
       this.chart.data.labels.push(new Date(data[i].timestamp).toLocaleString(undefined, { timeZone: 'UTC' }))
-      // data[i].x = data[i].timestamp
     }
     console.info('Transpiled all data, starting display...')
     this.status.innerHTML = 'Transpiled all data, starting display...'
 
-    //this.chart.data.labels = this.labelData
     this.chart.options.scales.leftY.min = this.yMin
     this.chart.options.scales.leftY.max = this.yMax
     this.chart.options.scales.rightY.min = this.yMinRight
     this.chart.options.scales.rightY.max = this.yMaxRight
-    /*this.chart.data.datasets.forEach((dataset) => {
-      // dataset.data = data
-      switch (dataset.label) {
-        case 'Volume':
-          dataset.data = this.volumeData
-          break
-        case 'Open':
-          dataset.data = this.openData
-          break
-        case 'High':
-          dataset.data = this.highData
-          break
-        case 'Low':
-          dataset.data = this.lowData
-          break
-        case 'Close':
-          dataset.data = this.closeData
-          break
-      }
-    })*/
+
     console.info('Added all data to chart, updating...')
     this.status.innerHTML = 'Added all data to chart, updating...'
 
     this.chart.update()
     console.info('Updated chart.')
-    //this.status.remove()
     this.queryData()
   }
 }
