@@ -11,19 +11,19 @@ const tradingType = args[0]
 let processor = null
 let signaller = null
 let trader = null
-let gatherer = null
-let charter = null
+let backTester = null
+// let gatherer = null
+// let charter = null
 
 switch (tradingType) {
   case 'backtest':
     console.info('Starting a backtest...')
-    const dataset = args[1]
-    const strategy = args[2]
 
-    signaller = new Signaller(strategy)
+    signaller = new Signaller(args[2])
     processor = new Processor(signaller.strategy.candlesAmount)
     trader = new Trader('backtest')
-    const backTester = new Backtester(dataset, newData, doneBacktesting)
+    backTester = new Backtester(args[1], newData, doneBacktesting)
+    backTester.run()
     break
   case 'paper':
     console.info('Starting paper trading...')
@@ -38,7 +38,7 @@ switch (tradingType) {
     process.exit(1)
 }
 
-async function newData(candle) {
+async function newData (candle) {
   try {
     const relevantData = await processor.newData(candle)
     await newRelevantData(relevantData)
@@ -52,7 +52,7 @@ async function newData(candle) {
   }
 }
 
-async function newRelevantData(relevantData) {
+async function newRelevantData (relevantData) {
   try {
     const newSignal = await signaller.newRelevantData(relevantData)
     if (newSignal) {
@@ -64,7 +64,7 @@ async function newRelevantData(relevantData) {
   }
 }
 
-async function tradeSignal(signal) {
+async function tradeSignal (signal) {
   try {
     await trader.run(signal)
   } catch (error) {
@@ -73,7 +73,7 @@ async function tradeSignal(signal) {
   }
 }
 
-async function doneBacktesting() {
+async function doneBacktesting () {
   console.log(trader.accounts)
   console.log(trader.paidFees)
 }

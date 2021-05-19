@@ -8,19 +8,19 @@ const readLastLines = require('read-last-lines')
 /**
  * The Processor receives every single incoming candle.
  * It then appends it to the data file.
- * 
+ *
  * Finally it checks if it has enough sequential candles
  * in order to emit 'relevant' data.
- * 
+ *
  * @param {Integer} candlesAmount  Amount of candles the current strategy requires.
  */
 
 class Processor {
-  constructor(candlesAmount) {
+  constructor (candlesAmount) {
     this.candlesAmount = candlesAmount
   }
 
-  async newData(candle) {
+  async newData (candle) {
     return new Promise((resolve, reject) => {
       if (
         candle.timestamp !== undefined &&
@@ -47,7 +47,7 @@ class Processor {
                 if (i > 0) {
                   if (parsedRelevantData[i].timestamp !== parsedRelevantData[i - 1].timestamp + 60000) {
                     reject({ code: 0, message: 'Unsequential candles.' })
-                    //This should send a signal back to the gatherer (if present) to attempt to request appropriate historic data.
+                    // This should send a signal back to the gatherer (if present) to attempt to request appropriate historic data.
                   }
                 }
               }

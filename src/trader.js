@@ -2,12 +2,12 @@
 
 /**
  * The Trader receives a signal and acts upon it.
- * 
+ *
  * @param {String}  environment Defines the environment the trader is running in: `backtest`, `paper` or `live`
  */
 
 class Trader {
-  constructor(environment) {
+  constructor (environment) {
     this.environment = environment
     this.accounts = null
 
@@ -17,7 +17,7 @@ class Trader {
     this.setup()
   }
 
-  setup() {
+  setup () {
     switch (this.environment) {
       case 'backtest':
         this.fees = { maker: 0.4, taker: 0.4 }
@@ -29,7 +29,6 @@ class Trader {
       case 'paper':
         console.error('Paper trade: not yet implemented.')
         process.exit(1)
-        break
       case 'live':
         console.error('Live trade: not yet implemented.')
         break
@@ -39,7 +38,7 @@ class Trader {
     }
   }
 
-  async run(signal) {
+  async run (signal) {
     return new Promise((resolve, reject) => {
       switch (signal.signal) {
         case 'long':
@@ -50,10 +49,6 @@ class Trader {
 
             this.accounts.COIN = parseFloat(Number.parseFloat((this.accounts.USDT / signal.lastCandle.close)).toFixed(8))
             this.accounts.USDT = 0
-
-            /*const fees = parseFloat(Number.parseFloat((this.fees.taker / 100 * this.accounts.COIN) / signal.lastCandle.close).toFixed(8))
-            this.paidFees += fees
-            this.accounts.COIN -= fees*/
           }
           break
         case 'short':

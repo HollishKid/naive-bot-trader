@@ -5,17 +5,15 @@ const path = require('path')
 const parse = require('csv-parse')
 
 class Backtester {
-  constructor(dataset, newData, doneBacktesting) {
+  constructor (dataset, newData, doneBacktesting) {
     this.dataset = dataset
     this.newData = newData
     this.doneBacktesting = doneBacktesting
 
     this.data = null
-
-    this.run()
   }
 
-  async run() {
+  async run () {
     this.data = await this.processFile(this.dataset)
     for (const candle of this.data) {
       await this.newData(candle)
@@ -24,7 +22,7 @@ class Backtester {
     this.doneBacktesting()
   }
 
-  async processFile(dataset) {
+  async processFile (dataset) {
     try {
       const candles = []
       const file = path.join(__dirname, `../historicalData/${dataset}.csv`)
