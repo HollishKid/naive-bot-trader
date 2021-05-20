@@ -1,6 +1,6 @@
 # Technical Analysis
 
-This technical analysis is specifically adapted for (this package)[https://github.com/anandanand84/technicalindicators] and for candles of 1 minute.
+This technical analysis is specifically adapted for [this package](https://github.com/anandanand84/technicalindicators) and for candles of 1 minute.
 
 ## Accumulation Distribution Line (ADL)
 ### Description
@@ -205,19 +205,3 @@ Consider the overall price trend when using overbought and oversold levels. For 
 ## Wilder’s Smoothing (Smoothed Moving Average, WEMA)
 ## WilliamsR (W%R)
 ## Ichimoku Cloud
-
-
-
-### Description
-### Inputs
-Object:
-- `open`
-- `high`
-- `low`
-- `close`
-- `volume`
-
-### Outputs
-### Interpretation
-
-![OBV](images/OBV.jpg)
