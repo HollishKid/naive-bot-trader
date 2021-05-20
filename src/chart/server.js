@@ -8,6 +8,7 @@ class Server {
   constructor () {
     this.server = null
     this.newCandles = []
+    this.newSignals = []
 
     this.sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
@@ -24,8 +25,9 @@ class Server {
         case '/data':
           if (this.newCandles.length > 0) {
             response.writeHead(200, { 'content-type': 'application/json' })
-            response.end(JSON.stringify({ code: 0, data: this.newCandles }))
+            response.end(JSON.stringify({ code: 0, data: this.newCandles, signals: this.newSignals }))
             this.newCandles = []
+            this.newSignals = []
           } else {
             response.writeHead(200, { 'content-type': 'application/json' })
             response.end(JSON.stringify({ code: 1, data: null }))
@@ -55,6 +57,10 @@ class Server {
 
   async newData (candle) {
     this.newCandles.push(candle)
+  }
+
+  async newSignal (signal) {
+    this.newSignals.push(signal)
   }
 }
 

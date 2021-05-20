@@ -3,7 +3,7 @@
 /* global Chart fetch */
 
 class ChartClass {
-  constructor () {
+  constructor() {
     this.server = null
 
     this.volumeData = []
@@ -25,7 +25,7 @@ class ChartClass {
     this.setup()
   }
 
-  setup () {
+  setup() {
     setTimeout(() => { this.queryData() }, 2000)
 
     this.chart = new Chart(this.ctx, {
@@ -34,8 +34,9 @@ class ChartClass {
         datasets: [{
           type: 'bar',
           label: 'Volume',
-          backgroundColor: 'rgba(255, 255, 0, 0.7)',
+          backgroundColor: 'rgba(255, 255, 0, 1)',
           borderColor: 'rgb(255, 255, 0)',
+          order: 7,
           data: [],
           yAxisID: 'rightY',
           parsing: {
@@ -46,6 +47,9 @@ class ChartClass {
           label: 'Open',
           backgroundColor: 'rgba(0, 255, 0, 0.7)',
           borderColor: 'rgb(0, 255, 0)',
+          borderWidth: 1,
+          pointRadius: 1,
+          order: 6,
           data: [],
           yAxisID: 'leftY',
           parsing: {
@@ -56,6 +60,9 @@ class ChartClass {
           label: 'High',
           backgroundColor: 'rgba(0, 0, 255, 0.7)',
           borderColor: 'rgb(0, 0, 255)',
+          borderWidth: 1,
+          pointRadius: 1,
+          order: 5,
           data: [],
           yAxisID: 'leftY',
           parsing: {
@@ -66,6 +73,9 @@ class ChartClass {
           label: 'Low',
           backgroundColor: 'rgba(0, 255, 255, 0.7)',
           borderColor: 'rgb(0, 255, 255)',
+          borderWidth: 1,
+          pointRadius: 1,
+          order: 4,
           data: [],
           yAxisID: 'leftY',
           parsing: {
@@ -76,10 +86,41 @@ class ChartClass {
           label: 'Close',
           backgroundColor: 'rgba(255, 0, 0, 0.7)',
           borderColor: 'rgb(255, 0, 0)',
+          borderWidth: 1,
+          pointRadius: 1,
+          order: 3,
           data: [],
           yAxisID: 'leftY',
           parsing: {
             yAxisKey: 'close'
+          }
+        }, {
+          type: 'line',
+          label: 'Long',
+          backgroundColor: 'rgba(0, 255, 0, 1)',
+          borderColor: 'rgb(0, 255, 0)',
+          pointRadius: 6,
+          fill: false,
+          showLine: false,
+          order: 2,
+          data: [],
+          yAxisID: 'leftY',
+          parsing: {
+            yAxisKey: 'long'
+          }
+        }, {
+          type: 'line',
+          label: 'Short',
+          backgroundColor: 'rgba(255, 0, 0, 1)',
+          borderColor: 'rgb(255, 0, 0)',
+          pointRadius: 6,
+          fill: false,
+          showLine: false,
+          order: 1,
+          data: [],
+          yAxisID: 'leftY',
+          parsing: {
+            yAxisKey: 'short'
           }
         }]
       },
@@ -128,15 +169,14 @@ class ChartClass {
     })
   }
 
-  async queryData () {
+  async queryData() {
     try {
       const data = await fetch('/data')
       const newData = await data.json()
       if (newData.code === 0) {
-        this.addData(newData.data)
+        this.addData(newData.data, newData.signals)
       } else {
         console.info('Waiting for data to be prepared by server...')
-        this.status.innerHTML = 'Waiting for data to be prepared by server...'
         setTimeout(() => { this.queryData() }, 2000)
       }
     } catch (error) {
@@ -144,9 +184,8 @@ class ChartClass {
     }
   }
 
-  async addData (data) {
+  async addData(data, signals) {
     console.info('Starting data process...')
-    this.status.innerHTML = 'Starting data process...'
     for (let i = 0; i < data.length; i++) {
       if (data[i].volume > this.yMaxRight) {
         this.yMaxRight = data[i].volume
@@ -178,6 +217,16 @@ class ChartClass {
         this.yMin = data[i].close
       }
 
+      let signal = null
+      for (let j = 0; j < signals.length; j++) {
+        if (signals[j].lastCandle.timestamp === data[i].timestamp) {
+          signal = signals[j]
+          console.log('FOUND SINGAL')
+          console.log(signal)
+          break
+        }
+      }
+
       this.chart.data.datasets.forEach((dataset) => {
         switch (dataset.label) {
           case 'Volume':
@@ -195,13 +244,47 @@ class ChartClass {
           case 'Close':
             dataset.data.push({ x: data[i].timestamp, close: data[i].close })
             break
+          case 'Long':
+            if (signal && signal.signal === 'long') {
+              dataset.data.push({ x: data[i].timestamp, long: data[i].close })
+              console.log('LONG')
+            } else {
+              dataset.data.push({ x: data[i].timestamp, long: null })
+            }
+            break
+          case 'Short':
+            if (signal && signal.signal === 'short') {
+              dataset.data.push({ x: data[i].timestamp, short: data[i].close })
+              console.log('SHORT')
+            } else {
+              dataset.data.push({ x: data[i].timestamp, long: null })
+            }
+            break
         }
       })
 
       this.chart.data.labels.push(new Date(data[i].timestamp).toLocaleString(undefined, { timeZone: 'UTC' }))
     }
+
+    /*for (let i = 0; i < signals.length; i++) {
+      switch (signals[i].signal) {
+        case 'long':
+          this.chart.data.datasets.forEach((dataset) => {
+            if (dataset.label === 'Long') {
+              dataset.data.push({ x: signals[i].lastCandle.timestamp, long: signals[i].lastCandle.close })
+            }
+          })
+          break
+        case 'short':
+          this.chart.data.datasets.forEach((dataset) => {
+            if (dataset.label === 'Short') {
+              dataset.data.push({ x: signals[i].lastCandle.timestamp, short: signals[i].lastCandle.close })
+            }
+          })
+          break
+      }
+    }*/
     console.info('Transpiled all data, starting display...')
-    this.status.innerHTML = 'Transpiled all data, starting display...'
 
     this.chart.options.scales.leftY.min = this.yMin
     this.chart.options.scales.leftY.max = this.yMax
@@ -209,7 +292,6 @@ class ChartClass {
     this.chart.options.scales.rightY.max = this.yMaxRight
 
     console.info('Added all data to chart, updating...')
-    this.status.innerHTML = 'Added all data to chart, updating...'
 
     this.chart.update()
     console.info('Updated chart.')

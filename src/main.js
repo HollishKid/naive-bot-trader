@@ -26,11 +26,11 @@ switch (tradingType) {
     signaller = new Signaller(trader, args[2])
     processor = new Processor(signaller.strategy.candlesAmount)
     backTester = new Backtester(args[1], newData, doneBacktesting)
-    backTester.run()
     if (args[3] === 'true') {
       chart = new Server(backTester)
       open('http://localhost:3000')
     }
+    backTester.run()
     break
   case 'paper':
     console.info('Starting paper trading...')
@@ -69,6 +69,7 @@ async function newRelevantData (relevantData) {
     const newSignal = await signaller.newRelevantData(relevantData)
     if (newSignal) {
       tradeSignal(newSignal)
+      chart.newSignal(newSignal)
     }
   } catch (error) {
     console.error(error)
