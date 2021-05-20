@@ -22,11 +22,14 @@ class StopLoss {
     return new Promise((resolve, reject) => {
       const candleToStable = parseFloat(Number.parseFloat((this.trader.lastCoinAmount * data[data.length - 1].close)).toFixed(8))
       const stablePlusFees = this.trader.lastStableAmount + ( this.trader.lastStableAmount * this.trader.fees.taker / 100)
-      //console.log(this.trader.lastCoinAmount * data[data.length - 1].close)
-      //console.log(stablePlusFees)
+      const stopLossThreshold = this.trader.lastStableAmount - ( this.trader.lastStableAmount * this.trader.fees.taker / 100)
       if (data[0].close > data[1].close && candleToStable < stablePlusFees) {
         resolve('long')
       } else if (candleToStable > stablePlusFees) {
+        // 'Normal' (profitable) Short
+        resolve('short')
+      } else if (currentSignal === 'long' && candleToStable <= stopLossThreshold) {
+        // Stop-Loss Short
         resolve('short')
       }
 

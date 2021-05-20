@@ -54,31 +54,35 @@ class Trader {
       switch (signal.signal) {
         case 'long':
           if (this.environment === 'backtest') {
-            this.tradeAmount += 1
-            this.lastStableAmount = this.accounts.USDT
+            if (this.accounts.USDT > 0) {
+              this.tradeAmount += 1
+              this.lastStableAmount = this.accounts.USDT
 
-            const fees = parseFloat(Number.parseFloat(this.fees.maker / 100 * this.accounts.USDT).toFixed(8))
-            this.paidFees += fees
-            this.accounts.USDT -= fees
+              const fees = parseFloat(Number.parseFloat(this.fees.maker / 100 * this.accounts.USDT).toFixed(8))
+              this.paidFees += fees
+              this.accounts.USDT -= fees
 
-            this.accounts.COIN = parseFloat(Number.parseFloat((this.accounts.USDT / signal.lastCandle.close)).toFixed(8))
-            this.accounts.USDT = 0
+              this.accounts.COIN = parseFloat(Number.parseFloat((this.accounts.USDT / signal.lastCandle.close)).toFixed(8))
+              this.accounts.USDT = 0
 
-            this.lastCoinAmount = this.accounts.COIN
+              this.lastCoinAmount = this.accounts.COIN
+            }
           }
           break
         case 'short':
           if (this.environment === 'backtest') {
-            this.tradeAmount += 1
-            this.accounts.USDT = parseFloat(Number.parseFloat((this.accounts.COIN * signal.lastCandle.close)).toFixed(8))
-            this.accounts.COIN = 0
+            if (this.accounts.COIN > 0) {
+              this.tradeAmount += 1
+              this.accounts.USDT = parseFloat(Number.parseFloat((this.accounts.COIN * signal.lastCandle.close)).toFixed(8))
+              this.accounts.COIN = 0
 
-            this.lastCoinAmount = this.accounts.COIN
-            this.lastStableAmount = this.accounts.USDT
+              this.lastCoinAmount = this.accounts.COIN
+              this.lastStableAmount = this.accounts.USDT
 
-            const fees = parseFloat(Number.parseFloat(this.fees.maker / 100 * this.accounts.USDT).toFixed(8))
-            this.paidFees += fees
-            this.accounts.USDT -= fees
+              const fees = parseFloat(Number.parseFloat(this.fees.maker / 100 * this.accounts.USDT).toFixed(8))
+              this.paidFees += fees
+              this.accounts.USDT -= fees
+            }
           }
           break
         default:
