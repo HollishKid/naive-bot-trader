@@ -19,7 +19,7 @@ class Backtester {
       await this.newData(candle)
     }
 
-    this.doneBacktesting()
+    this.doneBacktesting(this.data[0], this.data[this.data.length - 1])
   }
 
   async processFile (dataset) {

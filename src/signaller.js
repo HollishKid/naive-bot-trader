@@ -6,12 +6,16 @@ const path = require('path')
  * The Signaller imports the strategy.
  * It then receives the new relevant data every time it becomes available
  * and emits a signal based on the strategy.
+ * 
+ * It is also dependant on the Trader which holds information about the current status of the accounts.
  *
- * @param {String}  strategy  Path to the strategy .js file
+ * @param {Object}  trader    A reference to the Trader class.
+ * @param {String}  strategy  Path to the strategy .js file.
  */
 
 class Signaller {
-  constructor (strategy) {
+  constructor (trader, strategy) {
+    this.trader = trader
     this.strategyPath = strategy
     this.strategy = null
 
@@ -23,7 +27,7 @@ class Signaller {
   setup () {
     try {
       this.StrategyModule = require(path.join(__dirname, `./strategies/${this.strategyPath}`))
-      this.strategy = new this.StrategyModule()
+      this.strategy = new this.StrategyModule(this.trader)
 
       if (!this.strategy) {
         throw new Error()
@@ -35,7 +39,7 @@ class Signaller {
   }
 
   async newRelevantData (relevantData) {
-    const newSignal = await this.strategy.run(relevantData)
+    const newSignal = await this.strategy.run(this.currentSignal, relevantData)
     if (newSignal && this.currentSignal !== newSignal) {
       this.currentSignal = newSignal
       return { signal: newSignal, lastCandle: relevantData[relevantData.length - 1] }

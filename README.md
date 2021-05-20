@@ -35,7 +35,7 @@ The processor is responsible for receiving data from the gatherer or backtester,
 
 ### Signaller
 
-The signaller is the trading strategy that is being used either for either of the ongoing trading sessions, be it backtesting, paper trading or live trading.
+The signaller is the trading strategy that is being used for the ongoing trading session, be it backtesting, paper trading or live trading.
 It takes the data from the processor and signals the actual trader with one of the three signals `short`, `long` or `none`.
 
 ### Trader
