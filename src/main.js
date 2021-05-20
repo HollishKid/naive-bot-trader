@@ -88,10 +88,10 @@ async function tradeSignal (signal) {
 
 async function doneBacktesting (firstCandle, lastCandle) {
   let strategyResult = 0
-  console.log('======== Backtest Result ========')
-  console.log(`Number of trades: ${trader.tradeAmount}`)
-  console.log(`Total fees: ${parseFloat(Number.parseFloat(trader.paidFees).toFixed(2))} STABLECOIN`)
-  console.log(`Market: ${parseFloat(Number.parseFloat((lastCandle.close - firstCandle.close) / 100).toFixed(2))}%`)
+  console.info('======== Backtest Result ========')
+  console.info(`Number of trades: ${trader.tradeAmount}`)
+  console.info(`Total fees: ${parseFloat(Number.parseFloat(trader.paidFees).toFixed(2))} STABLECOIN`)
+  console.info(`Market: ${parseFloat(Number.parseFloat((lastCandle.close - firstCandle.close) / 100).toFixed(2))}%`)
   Object.keys(trader.accounts).map((account) => {
     if (account === 'USDT') {
       strategyResult += trader.accounts[account]
@@ -99,10 +99,13 @@ async function doneBacktesting (firstCandle, lastCandle) {
       strategyResult += parseFloat(Number.parseFloat((trader.accounts[account] * lastCandle.close)).toFixed(8))
     }
   })
-  console.log(strategyResult)
-  console.log(`Strategy: ${parseFloat(Number.parseFloat((strategyResult - trader.firstStableAmount) / 100).toFixed(2))}%`)
-  console.log('Current accounts:')
+  console.info(`Strategy: ${parseFloat(Number.parseFloat((strategyResult - trader.firstStableAmount) / 100).toFixed(2))}%`)
+  console.info('Current accounts:')
   Object.keys(trader.accounts).map((account) => {
-    console.log(`${account}: ${trader.accounts[account]}`)
+    console.info(`${account}: ${trader.accounts[account]}`)
   })
+  if (args[3] === 'true') {
+    chart.backtestingDone = true
+    console.info('Waiting for chart to receive all info...')
+  }
 }

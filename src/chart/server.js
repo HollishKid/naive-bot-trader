@@ -3,10 +3,13 @@
 const fs = require('fs')
 const http = require('http')
 const path = require('path')
+const { createHttpTerminator } = require('http-terminator')
 
 class Server {
-  constructor () {
+  constructor() {
     this.server = null
+    this.httpTerminator = null
+    this.backtestingDone = false
     this.newCandles = []
     this.newSignals = []
 
@@ -15,7 +18,7 @@ class Server {
     this.setup()
   }
 
-  setup () {
+  setup() {
     this.server = http.createServer((request, response) => {
       switch (request.url) {
         case '/':
@@ -52,7 +55,11 @@ class Server {
       }
     })
 
+    this.httpTerminator = createHttpTerminator({ server: this.server })
+
     this.server.listen(3000)
+
+    setTimeout(() => { this.shutDown() }, 4000)
   }
 
   async newData (candle) {
@@ -61,6 +68,20 @@ class Server {
 
   async newSignal (signal) {
     this.newSignals.push(signal)
+  }
+
+  async shutDown () {
+    if (this.backtestingDone && this.newCandles.length === 0 && this.newSignals.length === 0) {
+      console.info('Chart received all data, shutting down.')
+      try {
+        await this.httpTerminator.terminate()
+      } catch (error) {
+        console.error(error)
+        process.exit(1)
+      }
+    } else {
+      setTimeout(() => { this.shutDown() }, 4000)
+    }
   }
 }
 
