@@ -69,7 +69,9 @@ async function newRelevantData (relevantData) {
     const newSignal = await signaller.newRelevantData(relevantData)
     if (newSignal) {
       tradeSignal(newSignal)
-      chart.newSignal(newSignal)
+      if (args[3] === 'true') {
+        chart.newSignal(newSignal)
+      }
     }
   } catch (error) {
     console.error(error)
@@ -91,7 +93,7 @@ async function doneBacktesting (firstCandle, lastCandle) {
   console.info('======== Backtest Result ========')
   console.info(`Number of trades: ${trader.tradeAmount}`)
   console.info(`Total fees: ${parseFloat(Number.parseFloat(trader.paidFees).toFixed(2))} STABLECOIN`)
-  console.info(`Market: ${parseFloat(Number.parseFloat((lastCandle.close - firstCandle.close) / 100).toFixed(2))}%`)
+  console.info(`Market: ${parseFloat(Number.parseFloat(((lastCandle.close - firstCandle.close) / firstCandle.close) * 100).toFixed(2))}%`)
   Object.keys(trader.accounts).map((account) => {
     if (account === 'USDT') {
       strategyResult += trader.accounts[account]
@@ -99,7 +101,7 @@ async function doneBacktesting (firstCandle, lastCandle) {
       strategyResult += parseFloat(Number.parseFloat((trader.accounts[account] * lastCandle.close)).toFixed(8))
     }
   })
-  console.info(`Strategy: ${parseFloat(Number.parseFloat((strategyResult - trader.firstStableAmount) / 100).toFixed(2))}%`)
+  console.info(`Strategy: ${parseFloat(Number.parseFloat(((strategyResult - trader.firstStableAmount) / trader.firstStableAmount) * 100).toFixed(2))}%`)
   console.info('Current accounts:')
   Object.keys(trader.accounts).map((account) => {
     console.info(`${account}: ${trader.accounts[account]}`)
