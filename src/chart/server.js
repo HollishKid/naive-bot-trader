@@ -12,6 +12,7 @@ class Server {
     this.backtestingDone = false
     this.newCandles = []
     this.newSignals = []
+    this.newTAs = []
 
     this.sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
@@ -28,9 +29,10 @@ class Server {
         case '/data':
           if (this.newCandles.length > 0) {
             response.writeHead(200, { 'content-type': 'application/json' })
-            response.end(JSON.stringify({ code: 0, data: this.newCandles, signals: this.newSignals }))
+            response.end(JSON.stringify({ code: 0, data: this.newCandles, signals: this.newSignals, tas: this.newTAs }))
             this.newCandles = []
             this.newSignals = []
+            this.newTAs = []
           } else {
             response.writeHead(200, { 'content-type': 'application/json' })
             response.end(JSON.stringify({ code: 1, data: null }))
@@ -68,6 +70,10 @@ class Server {
 
   async newSignal (signal) {
     this.newSignals.push(signal)
+  }
+
+  async newTA (ta) {
+    this.newTAs.push(ta)
   }
 
   async shutDown () {

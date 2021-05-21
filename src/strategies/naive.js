@@ -19,12 +19,12 @@ class NaiveStrategy {
   async run (currentSignal, data) {
     return new Promise((resolve, reject) => {
       if (data[0].close > data[1].close) {
-        resolve('long')
+        resolve({ signal: 'long', ta: null })
       } else if (data[0].close < data[1].close) {
-        resolve('short')
+        resolve({ signal: 'short', ta: null })
       }
 
-      resolve(null)
+      resolve({ signal: null, ta: null })
     })
   }
 }

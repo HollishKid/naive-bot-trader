@@ -19,8 +19,9 @@ class ChartClass {
     this.yMaxRight = 0
 
     this.chart = null
+    this.chartTA = null
     this.ctx = document.getElementById('chart')
-    this.status = document.getElementById('status')
+    this.ctxTA = document.getElementById('chartTA')
 
     this.setup()
   }
@@ -167,14 +168,143 @@ class ChartClass {
         }
       }
     })
+
+    this.chartTA = new Chart(this.ctxTA, {
+      data: {
+        labels: [],
+        datasets: [{
+          type: 'line',
+          label: 'ADX',
+          backgroundColor: 'rgba(0, 255, 0, 0.7)',
+          borderColor: 'rgb(0, 255, 0)',
+          borderWidth: 1,
+          pointRadius: 1,
+          order: 6,
+          data: [],
+          yAxisID: 'leftY',
+          parsing: {
+            yAxisKey: 'adx'
+          }
+        }, {
+          type: 'line',
+          label: 'ADX_pdi',
+          backgroundColor: 'rgba(0, 128, 0, 0.7)',
+          borderColor: 'rgb(0, 128, 0)',
+          borderWidth: 1,
+          pointRadius: 1,
+          order: 5,
+          data: [],
+          yAxisID: 'leftY',
+          parsing: {
+            yAxisKey: 'adx_pdi'
+          }
+        }, {
+          type: 'line',
+          label: 'ADX_mdi',
+          backgroundColor: 'rgba(144, 238, 144, 0.7)',
+          borderColor: 'rgb(144, 238, 144)',
+          borderWidth: 1,
+          pointRadius: 1,
+          order: 4,
+          data: [],
+          yAxisID: 'leftY',
+          parsing: {
+            yAxisKey: 'adx_mdi'
+          }
+        }, {
+          type: 'line',
+          label: 'AO',
+          backgroundColor: 'rgba(0, 0, 255, 0.7)',
+          borderColor: 'rgb(0, 0, 255)',
+          borderWidth: 1,
+          pointRadius: 1,
+          order: 3,
+          data: [],
+          yAxisID: 'leftY',
+          parsing: {
+            yAxisKey: 'ao'
+          }
+        }, {
+          type: 'line',
+          label: 'FI',
+          backgroundColor: 'rgba(0, 255, 255, 0.7)',
+          borderColor: 'rgb(0, 255, 255)',
+          borderWidth: 1,
+          pointRadius: 1,
+          order: 2,
+          data: [],
+          yAxisID: 'leftY',
+          parsing: {
+            yAxisKey: 'fi'
+          }
+        }, {
+          type: 'line',
+          label: 'MACD',
+          backgroundColor: 'rgba(255, 0, 0, 0.7)',
+          borderColor: 'rgb(255, 0, 0)',
+          borderWidth: 1,
+          pointRadius: 1,
+          order: 1,
+          data: [],
+          yAxisID: 'rightY',
+          parsing: {
+            yAxisKey: 'macd'
+          }
+        }]
+      },
+      options: {
+        maintainAspectRatio: false,
+        animation: false,
+        parsing: false,
+        normalized: true,
+        plugins: {
+          decimation: {
+            enabled: true,
+            algorithm: 'min-max'
+          },
+          zoom: {
+            pan: {
+              enabled: true,
+              modifierKey: 'ctrl',
+              mode: 'xy'
+            },
+            zoom: {
+              drag: {
+                enabled: true
+              },
+              wheel: {
+                enabled: true
+              },
+              mode: 'xy'
+            }
+          }
+        },
+        scales: {
+          leftY: {
+            type: 'linear',
+            position: 'left',
+            min: -100,
+            max: 100
+          },
+          rightY: {
+            type: 'linear',
+            position: 'right',
+            min: -10,
+            max: 10
+          }
+        }
+      }
+    })
   }
+
+
 
   async queryData() {
     try {
       const data = await fetch('/data')
       const newData = await data.json()
       if (newData.code === 0) {
-        this.addData(newData.data, newData.signals)
+        this.addData(newData.data, newData.signals, newData.tas)
       } else {
         console.info('Waiting for data to be prepared by server...')
         setTimeout(() => { this.queryData() }, 2000)
@@ -184,7 +314,7 @@ class ChartClass {
     }
   }
 
-  async addData(data, signals) {
+  async addData(data, signals, tas) {
     console.info('Starting data process...')
     for (let i = 0; i < data.length; i++) {
       if (data[i].volume > this.yMaxRight) {
@@ -221,8 +351,6 @@ class ChartClass {
       for (let j = 0; j < signals.length; j++) {
         if (signals[j].lastCandle.timestamp === data[i].timestamp) {
           signal = signals[j]
-          console.log('FOUND SINGAL')
-          console.log(signal)
           break
         }
       }
@@ -263,7 +391,33 @@ class ChartClass {
         }
       })
 
+      if (tas[i] !== null) {
+        this.chartTA.data.datasets.forEach((dataset) => {
+          switch (dataset.label) {
+            case 'ADX':
+              dataset.data.push({ x: data[i].timestamp, adx: tas[i].adxResult.adx })
+              break
+            case 'ADX_pdi':
+              dataset.data.push({ x: data[i].timestamp, adx_pdi: tas[i].adxResult.pdi })
+              break
+            case 'ADX_mdi':
+              dataset.data.push({ x: data[i].timestamp, adx_mdi: tas[i].adxResult.mdi })
+              break
+            case 'AO':
+              dataset.data.push({ x: data[i].timestamp, ao: tas[i].aoResult })
+              break
+            case 'FI':
+              dataset.data.push({ x: data[i].timestamp, fi: tas[i].fiResult })
+              break
+            case 'MACD':
+              dataset.data.push({ x: data[i].timestamp, macd: tas[i].macdResult.histogram })
+              break
+          }
+        })
+      }
+
       this.chart.data.labels.push(new Date(data[i].timestamp).toLocaleString(undefined, { timeZone: 'UTC' }))
+      this.chartTA.data.labels.push(new Date(data[i].timestamp).toLocaleString(undefined, { timeZone: 'UTC' }))
     }
 
     /*for (let i = 0; i < signals.length; i++) {
@@ -294,6 +448,7 @@ class ChartClass {
     console.info('Added all data to chart, updating...')
 
     this.chart.update()
+    this.chartTA.update()
     console.info('Updated chart.')
     this.queryData()
   }

@@ -36,20 +36,20 @@ class TechnichalAnalysis {
         close.push(data[i].close)
       }
 
-      const adx = new TA.ADX({ 
-        period: 14, 
-        high: high.slice(-28), 
-        low: low.slice(-28), 
+      const adx = new TA.ADX({
+        period: 14,
+        high: high.slice(-28),
+        low: low.slice(-28),
         close: close.slice(-28)
       })
       results.adxResult = adx.getResult()[0]
 
-      const ao = new TA.AwesomeOscillator({ 
-        fastPeriod: 5, 
-        slowPeriod: 34, 
-        high: high.slice(-34), 
-        low: low.slice(-34), 
-        format: (a)=>parseFloat(a.toFixed(2)) 
+      const ao = new TA.AwesomeOscillator({
+        fastPeriod: 5,
+        slowPeriod: 34,
+        high: high.slice(-34),
+        low: low.slice(-34),
+        format: (a) => parseFloat(a.toFixed(2))
       })
       results.aoResult = ao.getResult()[0]
 
@@ -61,7 +61,7 @@ class TechnichalAnalysis {
       results.fiResult = fi.getResult()[0]
 
       const macd = new TA.MACD({
-        fastPeriod: 5, 
+        fastPeriod: 5,
         slowPeriod: 8,
         signalPeriod: 3,
         values: close.slice(-10),
@@ -95,24 +95,24 @@ class TechnichalAnalysis {
       results.kdResult = kd.getResult().slice(-1)[0]*/
 
       if (
-        results.adxResult.adx > 20 &&
+        // results.adxResult.adx > 20 &&
         results.adxResult.pdi > results.adxResult.mdi &&
         results.aoResult > 0 &&
         results.fiResult > 0 &&
-        results.macdResult.histogram > 0 
+        results.macdResult.histogram > 0
       ) {
-        resolve('long')
+        resolve({ signal: 'long', ta: results })
       } else if (
-        results.adxResult.adx > 20 &&
+        //results.adxResult.adx > 20 &&
         results.adxResult.pdi < results.adxResult.mdi &&
         results.aoResult < 0 &&
         results.fiResult < 0 &&
         results.macdResult.histogram < 0
       ) {
-        resolve('short')
+        resolve({ signal: 'short', ta: results })
       }
 
-      resolve(null)
+      resolve({ signal: null, ta: results })
     })
   }
 }

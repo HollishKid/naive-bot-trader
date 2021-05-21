@@ -67,11 +67,14 @@ async function newData (candle) {
 async function newRelevantData (relevantData) {
   try {
     const newSignal = await signaller.newRelevantData(relevantData)
-    if (newSignal) {
+    if (newSignal.signal) {
       tradeSignal(newSignal)
       if (args[3] === 'true') {
         chart.newSignal(newSignal)
+        chart.newTA(newSignal.ta)
       }
+    } else {
+      chart.newTA(newSignal.ta)
     }
   } catch (error) {
     console.error(error)
