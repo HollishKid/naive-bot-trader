@@ -73,7 +73,7 @@ async function newRelevantData (relevantData) {
         chart.newSignal(newSignal)
         chart.newTA(newSignal.ta)
       }
-    } else {
+    } else if (args[3] === 'true') {
       chart.newTA(newSignal.ta)
     }
   } catch (error) {

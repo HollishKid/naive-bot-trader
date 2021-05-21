@@ -12,7 +12,7 @@
  */
 
 class Trader {
-  constructor (environment) {
+  constructor(environment) {
     this.environment = environment
     this.accounts = null
 
@@ -26,7 +26,7 @@ class Trader {
     this.setup()
   }
 
-  setup () {
+  setup() {
     switch (this.environment) {
       case 'backtest':
         this.fees = { maker: 0.4, taker: 0.4 }
@@ -49,23 +49,37 @@ class Trader {
     }
   }
 
-  async run (signal) {
+  async run(signal) {
     return new Promise((resolve, reject) => {
       switch (signal.signal) {
         case 'long':
           if (this.environment === 'backtest') {
             if (this.accounts.USDT > 0) {
-              this.tradeAmount += 1
-              this.lastStableAmount = this.accounts.USDT
+              if (signal.percent) {
+                this.tradeAmount += 1
+                this.lastStableAmount = this.accounts.USDT
 
-              const fees = parseFloat(Number.parseFloat(this.fees.maker / 100 * this.accounts.USDT).toFixed(8))
-              this.paidFees += fees
-              this.accounts.USDT -= fees
+                const fees = parseFloat(Number.parseFloat((this.fees.maker / 100 * this.accounts.USDT) * signal.percent).toFixed(8))
+                this.paidFees += fees
+                this.accounts.USDT -= fees
 
-              this.accounts.COIN = parseFloat(Number.parseFloat((this.accounts.USDT / signal.lastCandle.close)).toFixed(8))
-              this.accounts.USDT = 0
+                this.accounts.COIN = parseFloat(Number.parseFloat(((this.accounts.USDT / signal.lastCandle.close)) * signal.percent).toFixed(8))
+                this.accounts.USDT = parseFloat(Number.parseFloat(this.accounts.USDT * (1 - signal.percent)).toFixed(2))
 
-              this.lastCoinAmount = this.accounts.COIN
+                this.lastCoinAmount = this.accounts.COIN
+              } else {
+                this.tradeAmount += 1
+                this.lastStableAmount = this.accounts.USDT
+
+                const fees = parseFloat(Number.parseFloat(this.fees.maker / 100 * this.accounts.USDT).toFixed(8))
+                this.paidFees += fees
+                this.accounts.USDT -= fees
+
+                this.accounts.COIN = parseFloat(Number.parseFloat((this.accounts.USDT / signal.lastCandle.close)).toFixed(8))
+                this.accounts.USDT = 0
+
+                this.lastCoinAmount = this.accounts.COIN
+              }
             }
           }
           break

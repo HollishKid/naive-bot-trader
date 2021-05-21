@@ -40,7 +40,7 @@ class Signaller {
 
   async newRelevantData (relevantData) {
     const newSignal = await this.strategy.run(this.currentSignal, relevantData)
-    if (newSignal.signal && this.currentSignal !== newSignal.signal) {
+    if (newSignal.signal) {
       this.currentSignal = newSignal.signal
       return { signal: newSignal.signal, lastCandle: relevantData[relevantData.length - 1], ta: newSignal.ta  }
     }
